@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fs, path::Path, process::Stdio};
 
 use cargo_metadata::MetadataCommand;
-use color_eyre::eyre::{self, bail};
+use color_eyre::eyre::{self};
 use jni_cli_core::token_processing::{fill_lookup, KotlinClass, PackageLookup};
 
 const GRADLE_WRAPPER_TEMPLATE: &[u8] = include_bytes!("template/gradle/wrapper/gradle-wrapper.jar");
@@ -173,7 +173,7 @@ mod test {
 
     #[java_class("beep.boop")]
     impl SomeStruct2 {
-        fn newFrom(s: String, idx: i32) -> SomeStruct2 {
+        fn newFrom(_s: String, _idx: i32) -> SomeStruct2 {
             SomeStruct2
         }
 
@@ -181,7 +181,7 @@ mod test {
             string.len() as i64
         }
 
-        fn do_more_even_more_stuff(&self, string: String) -> SomeStruct {
+        fn do_more_even_more_stuff(&self, _string: String) -> SomeStruct {
             SomeStruct
         }
     }

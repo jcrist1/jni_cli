@@ -62,7 +62,7 @@ pub fn fill_lookup(rust_code: &str, lookup: &mut PackageLookup) -> Result<(), sy
     Ok(())
 }
 
-fn parse_fn(path: &str, ty: &TokenStream, input: &ImplItemFn) -> Result<ParseFn, syn::Error> {
+fn parse_fn(_path: &str, _ty: &TokenStream, input: &ImplItemFn) -> Result<ParseFn, syn::Error> {
     let input = input.clone();
     let fn_name = input.sig.ident;
     let args = input.sig.inputs;
@@ -140,7 +140,7 @@ fn kotlin_class_method(
         args,
         output,
     } = parse_fn(path, self_ty, input)?;
-    let Some(ref_type) = ref_type else {
+    let Some(_ref_type) = ref_type else {
         return Ok(None);
     };
     let self_ty_str = self_ty.to_string();
@@ -447,7 +447,7 @@ fn map_jni_type_from_rust(ident: Ident) -> Result<&'static str, syn::Error> {
 }
 
 fn kotlin_class_fn(
-    class_name: &str,
+    _class_name: &str,
     j_fn_name: &str,
     j_args_with_types: &str,
     j_args: &str,
@@ -494,7 +494,7 @@ fn kotlin_static_fn(
     j_args_with_types: &str,
     j_args: &str,
     output_class: &str,
-    output: &str,
+    _output: &str,
     cleanup: bool,
 ) -> String {
     format!(
@@ -608,7 +608,7 @@ pub fn rust_file_to_tokens(
                 .map(|namespace| -> Result<_, _> {
                     let namespace = namespace?;
                     let struct_n = impl_item.self_ty.to_token_stream();
-                    let path = format!("{namespace}.{struct_n}");
+                    let _path = format!("{namespace}.{struct_n}");
 
                     let companion_fns = impl_item
                         .items
@@ -744,7 +744,7 @@ mod tests {
     use quote::quote;
     #[test]
     fn test_kotlin_fn() {
-        let fun = quote! {
+        let _fun = quote! {
             fn
         };
     }

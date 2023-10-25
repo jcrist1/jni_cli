@@ -1,8 +1,8 @@
-use std::{iter::repeat, sync::RwLock};
+use std::{sync::RwLock};
 
 use jni::{
     descriptors::Desc,
-    objects::{JByteArray, JClass, JObject, JObjectArray, JString, JValue, ReleaseMode},
+    objects::{JByteArray, JClass, JObject, JObjectArray, JString, JValue},
     sys::{jboolean, jdouble, jfloat, jint, jlong},
     JNIEnv,
 };
