@@ -367,7 +367,7 @@ pub fn java_class_fn(attr: TokenStream, item: TokenStream) -> Result<TokenStream
         #fns
 
         #[jni_fn(#namespace)]
-        pub fn dropByHandle<'local>(env: jni::JNIEnv<'local>, _class: jni::objects::JClass<'local>, handle: jni::sys::jlong) {}
+        pub fn dropByHandleExtern<'local>(env: jni::JNIEnv<'local>, _class: jni::objects::JClass<'local>, handle: jni::sys::jlong) {}
     })
 }
 
@@ -483,7 +483,7 @@ fn kotlin_private_native_fn(j_fn_name: &str, j_args_with_types: &str, output: &s
 fn kotlin_cleanup(class_path: &str, class_name: &str) -> String {
     format!(
         r#"
-        CLEANER.register(obj, {class_path}.{class_name}Cleaner(obj));
+        CLEANER.register(obj, {class_path}.{class_name}Cleaner(obj.handle));
     "#
     )
 }
@@ -543,10 +543,10 @@ class {class_name} {{
     companion object {{
         val _libImport = NativeUtils.loadLibraryFromJar("/lib{rust_lib}.dylib")
 
-        class {class_name}Cleaner(val obj: {class_name}): Runnable {{
+        class {class_name}Cleaner(val handle: Long): Runnable {{
 
             override fun run() {{
-                dropByHandleExtern(obj.handle)
+                dropByHandleExtern(handle)
             }}
         }}
         {kotlin_static_fns}
@@ -729,7 +729,10 @@ mod test {
             .into_iter()
             .collect();
 
-        let tokens = rust_file_to_tokens("beep.boop", &token_str, &lookup).expect("Not OK");
+        let rust_lib = "lets_go";
+
+        let tokens =
+            rust_file_to_tokens("beep.boop", &token_str, &lookup, rust_lib).expect("Not OK");
         for KotlinClass { code: token, .. } in tokens {
             println!("Tokens: {token}");
         }
