@@ -4,7 +4,7 @@ pub(crate) struct SomeStruct;
 
 #[java_class("beep.boop")]
 impl SomeStruct {
-    fn do_stuff(s: String, idx: i32) -> SomeStruct {
+    fn do_stuff(_s: String, _idx: i32) -> SomeStruct {
         SomeStruct
     }
 

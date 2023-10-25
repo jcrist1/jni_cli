@@ -62,7 +62,7 @@ pub fn fill_lookup(rust_code: &str, lookup: &mut PackageLookup) -> Result<(), sy
     Ok(())
 }
 
-fn parse_fn(path: &str, ty: &TokenStream, input: &ImplItemFn) -> Result<ParseFn, syn::Error> {
+fn parse_fn(_path: &str, _ty: &TokenStream, input: &ImplItemFn) -> Result<ParseFn, syn::Error> {
     let input = input.clone();
     let fn_name = input.sig.ident;
     let args = input.sig.inputs;
@@ -140,7 +140,7 @@ fn kotlin_class_method(
         args,
         output,
     } = parse_fn(path, self_ty, input)?;
-    let Some(ref_type) = ref_type else {
+    let Some(_ref_type) = ref_type else {
         return Ok(None);
     };
     let self_ty_str = self_ty.to_string();
@@ -367,7 +367,7 @@ pub fn java_class_fn(attr: TokenStream, item: TokenStream) -> Result<TokenStream
         #fns
 
         #[jni_fn(#namespace)]
-        pub fn dropByHandle<'local>(env: jni::JNIEnv<'local>, _class: jni::objects::JClass<'local>, handle: jni::sys::jlong) {}
+        pub fn dropByHandleExtern<'local>(env: jni::JNIEnv<'local>, _class: jni::objects::JClass<'local>, handle: jni::sys::jlong) {}
     })
 }
 
@@ -447,7 +447,7 @@ fn map_jni_type_from_rust(ident: Ident) -> Result<&'static str, syn::Error> {
 }
 
 fn kotlin_class_fn(
-    class_name: &str,
+    _class_name: &str,
     j_fn_name: &str,
     j_args_with_types: &str,
     j_args: &str,
@@ -483,7 +483,7 @@ fn kotlin_private_native_fn(j_fn_name: &str, j_args_with_types: &str, output: &s
 fn kotlin_cleanup(class_path: &str, class_name: &str) -> String {
     format!(
         r#"
-        CLEANER.register(obj, {class_path}.{class_name}Cleaner(obj));
+        CLEANER.register(obj, {class_path}.{class_name}Cleaner(obj.handle));
     "#
     )
 }
@@ -494,7 +494,7 @@ fn kotlin_static_fn(
     j_args_with_types: &str,
     j_args: &str,
     output_class: &str,
-    output: &str,
+    _output: &str,
     cleanup: bool,
 ) -> String {
     format!(
@@ -543,10 +543,10 @@ class {class_name} {{
     companion object {{
         val _libImport = NativeUtils.loadLibraryFromJar("/lib{rust_lib}.dylib")
 
-        class {class_name}Cleaner(val obj: {class_name}): Runnable {{
+        class {class_name}Cleaner(val handle: Long): Runnable {{
 
             override fun run() {{
-                dropByHandleExtern(obj.handle)
+                dropByHandleExtern(handle)
             }}
         }}
         {kotlin_static_fns}
@@ -608,7 +608,7 @@ pub fn rust_file_to_tokens(
                 .map(|namespace| -> Result<_, _> {
                     let namespace = namespace?;
                     let struct_n = impl_item.self_ty.to_token_stream();
-                    let path = format!("{namespace}.{struct_n}");
+                    let _path = format!("{namespace}.{struct_n}");
 
                     let companion_fns = impl_item
                         .items
@@ -729,7 +729,10 @@ mod test {
             .into_iter()
             .collect();
 
-        let tokens = rust_file_to_tokens("beep.boop", &token_str, &lookup).expect("Not OK");
+        let rust_lib = "lets_go";
+
+        let tokens =
+            rust_file_to_tokens("beep.boop", &token_str, &lookup, rust_lib).expect("Not OK");
         for KotlinClass { code: token, .. } in tokens {
             println!("Tokens: {token}");
         }
@@ -741,7 +744,7 @@ mod tests {
     use quote::quote;
     #[test]
     fn test_kotlin_fn() {
-        let fun = quote! {
+        let _fun = quote! {
             fn
         };
     }
