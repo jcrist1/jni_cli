@@ -1,0 +1,20 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+clap = { version = "4.4.6", features = ["derive"] }
+jni = "0.21.1"
+jni_fn = "0.1.2"
+jni_cli_core = {path = "../jni_cli_core"}
+jni_cli_macro = {path = "../jni_cli_macro"}
+color-eyre = "0.6.2"
+handlebars = "4.4.0"
+serde_json = "1.0.107"
+walkdir = "2.4.0"
+tokio = { version = "1.33.0", features = ["full", "process"] }
+cargo_metadata = "0.18.1"

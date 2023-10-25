@@ -1,0 +1,17 @@
+[package]
+name = "jni_cli_example"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[lib]
+crate_type = ["cdylib"]
+
+[dependencies]
+tokenizers = "0.14.1"
+jni_cli_macro = {path = "../jni_cli_macro"}
+jni_cli_core = {path = "../jni_cli_core"}
+jni = "0.21.1"
+jni_fn = "0.1.2"

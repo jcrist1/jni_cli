@@ -1,0 +1,19 @@
+[package]
+name = "jni_cli_core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+convert_case = "0.6.0"
+jni = "0.21.0"
+jni_fn = "0.1.2"
+once_cell = "1.18.0"
+quote = "1.0.33"
+itertools = "0.11.0"
+prettyplease = "0.2.15"
+proc-macro2 = "1.0.67"
+syn = { version = "2.0.37", features = ["full", "visit"] }
+thiserror = "1.0.49"
+

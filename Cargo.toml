@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = [
+  "jni_cli",
+  "jni_cli_macro",
+  "jni_cli_core",
+  "example",
+]

@@ -1,0 +1,105 @@
+use std::{collections::HashMap, fs};
+
+use jni_cli_core::token_processing::PackageLookup;
+
+const GRADLE_WRAPPER_TEMPLATE: &[u8] = include_bytes!("template/gradle/wrapper/gradle-wrapper.jar");
+const GRADLE_WRAPPER_PROPERTIES_TEMPLATE: &[u8] =
+    include_bytes!("template/gradle/wrapper/gradle-wrapper.properties");
+const GRADLE_BUILD_TEMPLATE: &str = include_str!("template/lib/build.gradle.kts");
+const GRADLE_SETTINGS_TEMPLATE: &str = include_str!("template/settings.gradle.kts");
+const GRADLE_PROPERTIES_TEMPLATE: &[u8] = include_bytes!("template/gradle.properties");
+const GRADLEW_BAT_TEMPLATE: &[u8] = include_bytes!("template/gradlew.bat");
+const GRADLEW_TEMPLATE: &[u8] = include_bytes!("template/gradlew");
+
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+    let reg = handlebars::Handlebars::new();
+    let package_name = "boop";
+    let group = "gigapixel.dev";
+    let group_dir = group.replace('.', "/");
+    fs::create_dir_all(format!("kotlin/lib/src/kotlin/{group_dir}/{package_name}"))?;
+    fs::create_dir_all("kotlin/lib/src/resources")?;
+    fs::create_dir_all("kotlin/gradle/wrapper")?;
+    let gradle_settings = reg.render_template(
+        GRADLE_SETTINGS_TEMPLATE,
+        &serde_json::json!({"package_name": package_name}),
+    )?;
+    fs::write("kotlin/settings.gradle.kts", gradle_settings)?;
+    fs::write(
+        "kotlin/gradle/wrapper/gradle-wrapper.jar",
+        GRADLE_WRAPPER_TEMPLATE,
+    )?;
+    fs::write(
+        "kotlin/gradle/wrapper/gradle-wrapper.properties",
+        GRADLE_WRAPPER_PROPERTIES_TEMPLATE,
+    )?;
+    let gradle_build = reg.render_template(
+        GRADLE_BUILD_TEMPLATE,
+        &serde_json::json!({"package_name": package_name, "group_id": group}),
+    )?;
+    fs::write("kotlin/lib/build.gradle.kts", gradle_build)?;
+
+    fs::write("kotlin/gradle.properties", GRADLE_PROPERTIES_TEMPLATE)?;
+
+    fs::write("kotlin/gradlew.bat", GRADLEW_BAT_TEMPLATE)?;
+    fs::write("kotlin/gradlew", GRADLEW_TEMPLATE)?;
+
+    let java_class_lookup: PackageLookup = HashMap::new();
+
+    for file in walkdir::WalkDir::new("src") {
+        let file = file?;
+        let name = file.file_name();
+        let name_str = name
+            .to_str()
+            .ok_or(color_eyre::eyre::eyre!("Failed to convert filename to str"))?;
+        let end = name_str
+            .chars()
+            .skip(name_str.len() - 3)
+            .collect::<String>();
+        if &end == ".rs" {
+            let path = file.path();
+            println!("{path:?}");
+            let rust = fs::read_to_string(file.path())?;
+    }
+
+    for file in walkdir::WalkDir::new("src") {
+        let file = file?;
+        let name = file.file_name();
+        let name_str = name
+            .to_str()
+            .ok_or(color_eyre::eyre::eyre!("Failed to convert filename to str"))?;
+        let end = name_str
+            .chars()
+            .skip(name_str.len() - 3)
+            .collect::<String>();
+        if &end == ".rs" {
+            let path = file.path();
+            println!("{path:?}");
+            let rust = fs::read_to_string(file.path())?;
+            let impls = jni_cli_core::token_processing::rust_file_to_tokens(&rust)?;
+            let first = impls
+                .first()
+                .ok_or_else(|| color_eyre::eyre::eyre!("Nothing found"))?;
+            println!("{first}");
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use jni_cli_macro::java_class;
+
+    pub struct SomeStruct;
+
+    #[java_class("beep.boop")]
+    impl SomeStruct {
+        fn do_stuff(s: String, idx: i32) -> SomeStruct {
+            SomeStruct
+        }
+
+        fn do_more_stuff(&self, string: String) -> i64 {
+            string.len() as i64
+        }
+    }
+}
