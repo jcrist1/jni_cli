@@ -1,6 +1,27 @@
 # jni-cli
 a cli to build a java library around a rust dylib
 
+The goal of this tool is to be able to annotate a rust struct's impl block with a procedural macro
+that will fill in some JNI boilerplate for the impl methods, then to take those methods and 
+generate kotlin code that will call them as well as calling the descructor for the struct on cleanup
+
+For now the cli only works for the example provided in the `example/` folder
+
+Call
+```sh
+cargo build --release
+cd example
+../target/release/cli -g dev.gigapixel -p tokenizers
+```
+
+### Todos:
+* get dylib artifacts programatically
+* rewrite
+* testing
+
+
+
+
 Goal
 ```rust
 #[java_class('dev.gigapixel.tok4j', thread_safe = true)]
@@ -36,12 +57,11 @@ Want this to expand to
 impl JavaClass for Structure {
     const LOC: &'static str = "dev.gigapixe.tok4j.Structure";
     const PATH &'static str = "dev/gigapixe/tok4j/Structure";
-    fn 
 }
 
 #[jni_fn("dev.gigapixel.tok4j.Structure")]
 pub fn newStructure<'loca>(JNIEnv, Class) -> JObject {
-  ... jni_stuff to create object of 
+  // jni_stuff to create object
 }
 
 ```
